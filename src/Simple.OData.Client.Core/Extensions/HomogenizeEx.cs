@@ -3,11 +3,20 @@ using System.Text.RegularExpressions;
 
 namespace Simple.OData.Client.Extensions;
 
-internal static class HomogenizeEx
+internal static partial class HomogenizeEx
 {
 	private static readonly ConcurrentDictionary<string, string> Cache
 		= new(StringComparer.OrdinalIgnoreCase);
-	private static Regex _homogenizeRegex = new(@"[\s\p{P}]");
+
+	private static Regex _homogenizeRegex =
+#if !NET
+		new(@"[\s\p{P}]", RegexOptions.Compiled);
+#else
+		GetDefaultHomogenizeRegex();
+
+	[GeneratedRegex(@"[\s\p{P}]")]
+	private static partial Regex GetDefaultHomogenizeRegex();
+#endif
 
 	/// <summary>
 	/// Downshift a string and remove all non-alphanumeric characters.

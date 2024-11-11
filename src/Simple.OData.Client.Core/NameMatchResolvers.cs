@@ -8,6 +8,12 @@ public static class ODataNameMatchResolver
 	public static INameMatchResolver Alpahumeric = new ExactMatchResolver(true);
 	public static INameMatchResolver AlpahumericCaseInsensitive = new ExactMatchResolver(true, StringComparison.InvariantCultureIgnoreCase);
 	public static INameMatchResolver NotStrict = new BestMatchResolver();
+
+	internal static string LastPostDotSegment(string input)
+	{
+		int lastDot = input.LastIndexOf('.');
+		return lastDot >= 0 ? input.Substring(lastDot + 1) : input;
+	}
 }
 
 public static class Pluralizers
@@ -23,8 +29,8 @@ public class ExactMatchResolver(bool alphanumComparison = false, StringCompariso
 
 	public bool IsMatch(string actualName, string requestedName)
 	{
-		actualName = actualName.Split('.').Last();
-		requestedName = requestedName.Split('.').Last();
+		actualName = ODataNameMatchResolver.LastPostDotSegment(actualName);
+		requestedName = ODataNameMatchResolver.LastPostDotSegment(requestedName);
 		if (_alphanumComparison)
 		{
 			actualName = actualName.Homogenize();
@@ -46,8 +52,8 @@ public class BestMatchResolver : INameMatchResolver
 
 	public bool IsMatch(string actualName, string requestedName)
 	{
-		actualName = actualName.Split('.').Last().Homogenize();
-		requestedName = requestedName.Split('.').Last().Homogenize();
+		actualName = ODataNameMatchResolver.LastPostDotSegment(actualName).Homogenize();
+		requestedName = ODataNameMatchResolver.LastPostDotSegment(requestedName).Homogenize();
 
 		return actualName == requestedName ||
 			   (actualName == _pluralizer.Singularize(requestedName) ||

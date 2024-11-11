@@ -1,4 +1,6 @@
-﻿namespace Simple.OData.Client;
+﻿using System.Text;
+
+namespace Simple.OData.Client;
 
 // Based on gist by Juliën Hanssens
 // https://gist.github.com/hanssens/2835960
@@ -242,7 +244,11 @@ internal class SimplePluralizer : IPluralizer
 
 	private static string? ToPluralInternal(string s)
 	{
-		if (string.IsNullOrEmpty(s) || s.ToCharArray().Any(x => x > 0x7F))
+#if NET8_0_OR_GREATER
+		if (string.IsNullOrEmpty(s) || !Ascii.IsValid(s))
+#else
+		if (string.IsNullOrEmpty(s) || s.Any(x => x > 0x7F))
+#endif
 		{
 			return s;
 		}
@@ -265,7 +271,11 @@ internal class SimplePluralizer : IPluralizer
 
 	private static string? ToSingularInternal(string s)
 	{
-		if (string.IsNullOrEmpty(s) || s.ToCharArray().Any(x => x > 0x7F))
+#if NET8_0_OR_GREATER
+		if (string.IsNullOrEmpty(s) || !Ascii.IsValid(s))
+#else
+		if (string.IsNullOrEmpty(s) || s.Any(x => x > 0x7F))
+#endif
 		{
 			return s;
 		}
